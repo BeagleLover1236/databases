@@ -8,15 +8,16 @@ const API_URL = 'http://127.0.0.1:3000/classes';
 
 describe('Persistent Node Chat Server', () => {
   const dbConnection = mysql.createConnection({
+    host: 'localhost',
     user: 'root',
     password: '',
-    database: 'chat',
+    database: 'chat'
   });
 
   beforeAll((done) => {
     dbConnection.connect();
 
-       const tablename = ''; // TODO: fill this out
+       const tablename = 'messages'; // TODO: fill this out
 
     /* Empty the db table before all tests so that multiple tests
      * (or repeated runs of the tests)  will not fail when they should be passing
@@ -54,7 +55,7 @@ describe('Persistent Node Chat Server', () => {
           expect(results.length).toEqual(1);
 
           // TODO: If you don't have a column named text, change this test.
-          expect(results[0].text).toEqual(message);
+          expect(results[0].message).toEqual(message);
           done();
         });
       })
@@ -65,8 +66,11 @@ describe('Persistent Node Chat Server', () => {
 
   it('Should output all messages from the DB', (done) => {
     // Let's insert a message into the db
-       const queryString = '';
-       const queryArgs = [];
+      const message = "Testing"
+      const roomname = "Testing Room"
+       const queryString = `INSERT INTO messages (message, roomname, userId)
+       VALUES(? , ?, ?)`;
+       const queryArgs = [message, roomname, 1];
     /* TODO: The exact query string and query args to use here
      * depend on the schema you design, so I'll leave them up to you. */
     dbConnection.query(queryString, queryArgs, (err) => {
@@ -78,8 +82,9 @@ describe('Persistent Node Chat Server', () => {
       axios.get(`${API_URL}/messages`)
         .then((response) => {
           const messageLog = response.data;
-          expect(messageLog[0].text).toEqual(message);
-          expect(messageLog[0].roomname).toEqual(roomname);
+          console.log(messageLog)
+          expect(messageLog[1].message).toEqual(message);
+          expect(messageLog[1].roomname).toEqual(roomname);
           done();
         })
         .catch((err) => {
